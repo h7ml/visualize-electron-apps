@@ -21,37 +21,8 @@ DEMO_DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'demo_
 TEMP_DIR = tempfile.gettempdir()
 USER_DATA_FILE = os.path.join(TEMP_DIR, 'user_electron_apps.json')
 
-# 检查是否存在用户上传的数据，否则使用演示数据
-def get_data_file():
-    if os.path.exists(USER_DATA_FILE):
-        return USER_DATA_FILE
-    return DEMO_DATA_FILE
-
-# 读取JSON数据
-def load_data(json_file=None):
-    if json_file is None:
-        json_file = get_data_file()
-    
-    try:
-        with open(json_file, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        return data
-    except FileNotFoundError:
-        print(f"错误：未找到文件 {json_file}")
-        # 如果找不到用户文件，尝试使用演示数据
-        if json_file != DEMO_DATA_FILE:
-            return load_data(DEMO_DATA_FILE)
-        return []
-    except json.JSONDecodeError:
-        print(f"错误：JSON格式不正确 {json_file}")
-        # 如果用户文件格式错误，尝试使用演示数据
-        if json_file != DEMO_DATA_FILE:
-            return load_data(DEMO_DATA_FILE)
-        return []
-
-# 初始化演示数据
+# 确保演示数据存在
 def init_demo_data():
-    # 如果演示数据文件不存在，创建一个包含示例数据的文件
     if not os.path.exists(DEMO_DATA_FILE):
         demo_data = [
             {
@@ -122,6 +93,27 @@ def init_demo_data():
         ]
         with open(DEMO_DATA_FILE, 'w', encoding='utf-8') as f:
             json.dump(demo_data, f, ensure_ascii=False, indent=2)
+
+# 读取JSON数据
+def load_data():
+    # 优先使用用户上传的数据，否则使用演示数据
+    if os.path.exists(USER_DATA_FILE):
+        json_file = USER_DATA_FILE
+    else:
+        json_file = DEMO_DATA_FILE
+    
+    try:
+        with open(json_file, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        if json_file != DEMO_DATA_FILE:
+            # 如果用户文件有问题，尝试使用演示数据
+            try:
+                with open(DEMO_DATA_FILE, 'r', encoding='utf-8') as f:
+                    return json.load(f)
+            except:
+                pass
+        return []
 
 # 主页路由
 @app.route('/')
@@ -274,8 +266,10 @@ def upload_file():
 init_demo_data()
 
 # 为Vercel Serverless Functions提供入口点
-def handler(event, context):
-    return app(event, context)
+# 标准的Vercel Python处理函数
+def handler(request):
+    with app.request_context(request):
+        return app.full_dispatch_request()
 
 # 本地测试用
 if __name__ == '__main__':
