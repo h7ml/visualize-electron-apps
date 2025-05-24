@@ -9,7 +9,7 @@
 
 <p align="center">扫描、分析并可视化展示系统中Electron应用的资源使用情况</p>
 
-![应用预览](https://via.placeholder.com/800x450.png?text=Electron+应用资源分析器)
+![应用预览](https://visualize-electron-apps.vercel.app/)
 
 ## 📝 项目简介
 
@@ -48,8 +48,8 @@ Electron是一个流行的跨平台桌面应用开发框架，但其应用往往
 
 1. 克隆仓库到本地：
    ```bash
-   git clone https://github.com/yourusername/electron-apps-analyzer.git
-   cd electron-apps-analyzer
+   git clone https://github.com/h7ml/visualize_electron_apps.git
+   cd visualize_electron_apps
    ```
 
 2. 安装依赖：
@@ -103,14 +103,14 @@ python visualize_electron_apps.py --json-file electron_apps.json
 
 在线演示版本仅提供可视化功能，您需要上传由本地扫描工具生成的数据：
 
-1. 访问演示网站：[https://electron-apps-analyzer.vercel.app/](https://electron-apps-analyzer.vercel.app/)
+1. 访问演示网站：[https://visualize_electron_apps.vercel.app/](https://visualize_electron_apps.vercel.app/)
 2. 上传您的JSON数据文件（由`find_electron_apps.py`生成）
 3. 查看可视化分析结果
 
 ## 📂 项目结构
 
 ```
-electron-apps-analyzer/
+visualize_electron_apps/
 ├── api/                        # 用于Vercel部署的API目录
 │   ├── __init__.py
 │   ├── index.py                # Flask API入口点
@@ -165,7 +165,7 @@ A: 由于安全限制，在线部署版本无法访问您的本地文件系统�
 
 我们欢迎并感谢任何形式的贡献！以下是一些参与项目的方式：
 
-1. **报告Bug**：如果您发现了问题，请[创建issue](https://github.com/yourusername/electron-apps-analyzer/issues)
+1. **报告Bug**：如果您发现了问题，请[创建issue](https://github.com/h7ml/visualize_electron_apps/issues)
 2. **提出新功能**：有新想法？欢迎通过issue分享
 3. **提交代码**：
    - Fork仓库
@@ -182,9 +182,9 @@ A: 由于安全限制，在线部署版本无法访问您的本地文件系统�
 
 ## 📬 联系方式
 
-项目作者 - [@yourusername](https://github.com/yourusername)
+项目作者 - [@h7ml](https://github.com/h7ml)
 
-项目链接: [https://github.com/yourusername/electron-apps-analyzer](https://github.com/yourusername/electron-apps-analyzer)
+项目链接: [https://github.com/h7ml/visualize_electron_apps](https://github.com/h7ml/visualize_electron_apps)
 
 ---
 

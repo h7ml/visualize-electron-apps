@@ -81,8 +81,8 @@
 
 1. 克隆仓库到本地：
    ```bash
-   git clone https://github.com/yourusername/electron-apps-analyzer.git
-   cd electron-apps-analyzer
+   git clone https://github.com/h7ml/visualize_electron_apps.git
+   cd visualize_electron_apps
    ```
 
 2. 创建并激活虚拟环境（推荐）：
