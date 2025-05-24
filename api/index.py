@@ -265,12 +265,6 @@ def upload_file():
 # 初始化演示数据
 init_demo_data()
 
-# 为Vercel Serverless Functions提供入口点
-# 标准的Vercel Python处理函数
-def handler(request):
-    with app.request_context(request):
-        return app.full_dispatch_request()
-
 # 本地测试用
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080) 
