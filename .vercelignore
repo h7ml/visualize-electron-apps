@@ -1,0 +1,44 @@
+# 排除主程序文件，这些不需要部署到Vercel
+find_electron_apps.py
+main.py
+visualize_electron_apps.py
+
+# 排除各种临时和缓存文件
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 排除版本控制和开发文件
+.git
+.github
+.gitignore
+.env
+.venv
+venv/
+ENV/
+
+# 排除示例数据和测试文件
+electron_apps.json
+test/
+tests/
+
+# 排除文档和其他非必要文件
+*.md
+LICENSE 

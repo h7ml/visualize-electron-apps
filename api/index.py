@@ -8,19 +8,9 @@ Electron应用资源使用情况可视化API
 
 import os
 import json
-import pandas as pd
-import tempfile
 from flask import Flask, request, jsonify, render_template, send_from_directory
 from werkzeug.utils import secure_filename
-
-# 检查必要的依赖包
-try:
-    import plotly
-    import plotly.express as px
-    import plotly.graph_objects as go
-except ImportError:
-    print("请安装Plotly：pip install plotly")
-    exit(1)
+import tempfile
 
 app = Flask(__name__)
 
@@ -153,24 +143,25 @@ def get_apps():
 @app.route('/api/chart/memory')
 def memory_chart():
     data = load_data()
-    df = pd.DataFrame(data)
     
     # 只保留运行中的应用
-    running_apps = df[df['running'] == True].copy()
+    running_apps = [app for app in data if app.get('running', False)]
     
-    if running_apps.empty:
+    if not running_apps:
         return jsonify({"error": "没有运行中的应用"})
     
     # 按内存使用量排序
-    running_apps = running_apps.sort_values('memory_mb', ascending=False)
+    running_apps.sort(key=lambda x: x.get('memory_mb', 0), reverse=True)
     
     # 创建图表数据
+    memory_values = [app.get('memory_mb', 0) for app in running_apps]
+    
     chart_data = {
-        'app_names': running_apps['name'].tolist(),
-        'memory_usage': running_apps['memory_mb'].tolist(),
-        'max_memory': running_apps['memory_mb'].max(),
-        'total_memory': running_apps['memory_mb'].sum(),
-        'avg_memory': running_apps['memory_mb'].mean(),
+        'app_names': [app.get('name', '') for app in running_apps],
+        'memory_usage': memory_values,
+        'max_memory': max(memory_values) if memory_values else 0,
+        'total_memory': sum(memory_values),
+        'avg_memory': sum(memory_values) / len(memory_values) if memory_values else 0,
     }
     
     return jsonify(chart_data)
@@ -179,24 +170,25 @@ def memory_chart():
 @app.route('/api/chart/cpu')
 def cpu_chart():
     data = load_data()
-    df = pd.DataFrame(data)
     
     # 只保留运行中且有性能数据的应用
-    running_apps = df[(df['running'] == True) & (df['has_performance_data'] == True)].copy()
+    running_apps = [app for app in data if app.get('running', False) and app.get('has_performance_data', False)]
     
-    if running_apps.empty:
+    if not running_apps:
         return jsonify({"error": "没有运行中的应用"})
     
     # 按CPU使用率排序
-    running_apps = running_apps.sort_values('cpu_percent', ascending=False)
+    running_apps.sort(key=lambda x: x.get('cpu_percent', 0), reverse=True)
     
     # 创建图表数据
+    cpu_values = [app.get('cpu_percent', 0) for app in running_apps]
+    
     chart_data = {
-        'app_names': running_apps['name'].tolist(),
-        'cpu_usage': running_apps['cpu_percent'].tolist(),
-        'max_cpu': running_apps['cpu_percent'].max(),
-        'total_cpu': running_apps['cpu_percent'].sum(),
-        'avg_cpu': running_apps['cpu_percent'].mean(),
+        'app_names': [app.get('name', '') for app in running_apps],
+        'cpu_usage': cpu_values,
+        'max_cpu': max(cpu_values) if cpu_values else 0,
+        'total_cpu': sum(cpu_values),
+        'avg_cpu': sum(cpu_values) / len(cpu_values) if cpu_values else 0,
     }
     
     return jsonify(chart_data)
@@ -205,21 +197,22 @@ def cpu_chart():
 @app.route('/api/chart/size')
 def size_chart():
     data = load_data()
-    df = pd.DataFrame(data)
     
     # 按应用大小排序
-    df = df.sort_values('size', ascending=False)
+    sorted_apps = sorted(data, key=lambda x: x.get('size', 0), reverse=True)
     
     # 取前15个最大的应用
-    top_apps = df.head(15)
+    top_apps = sorted_apps[:15]
     
     # 创建图表数据
+    size_values = [app.get('size', 0) for app in data]
+    
     chart_data = {
-        'app_names': top_apps['name'].tolist(),
-        'app_sizes': top_apps['size'].tolist(),
-        'max_size': df['size'].max(),
-        'total_size': df['size'].sum(),
-        'avg_size': df['size'].mean(),
+        'app_names': [app.get('name', '') for app in top_apps],
+        'app_sizes': [app.get('size', 0) for app in top_apps],
+        'max_size': max(size_values) if size_values else 0,
+        'total_size': sum(size_values),
+        'avg_size': sum(size_values) / len(size_values) if size_values else 0,
     }
     
     return jsonify(chart_data)
@@ -228,24 +221,25 @@ def size_chart():
 @app.route('/api/chart/ratio')
 def ratio_chart():
     data = load_data()
-    df = pd.DataFrame(data)
     
     # 只保留运行中的应用
-    running_apps = df[df['running'] == True].copy()
+    running_apps = [app for app in data if app.get('running', False)]
     
-    if running_apps.empty:
+    if not running_apps:
         return jsonify({"error": "没有运行中的应用"})
     
     # 按内存/大小比例排序
-    running_apps = running_apps.sort_values('memory_size_ratio', ascending=False)
+    running_apps.sort(key=lambda x: x.get('memory_size_ratio', 0), reverse=True)
     
     # 创建图表数据
+    ratio_values = [app.get('memory_size_ratio', 0) for app in running_apps]
+    
     chart_data = {
-        'app_names': running_apps['name'].tolist(),
-        'ratios': running_apps['memory_size_ratio'].tolist(),
-        'max_ratio': running_apps['memory_size_ratio'].max(),
-        'min_ratio': running_apps['memory_size_ratio'][running_apps['memory_size_ratio'] > 0].min() if any(running_apps['memory_size_ratio'] > 0) else 0,
-        'avg_ratio': running_apps['memory_size_ratio'].mean(),
+        'app_names': [app.get('name', '') for app in running_apps],
+        'ratios': ratio_values,
+        'max_ratio': max(ratio_values) if ratio_values else 0,
+        'min_ratio': min([r for r in ratio_values if r > 0]) if any(r > 0 for r in ratio_values) else 0,
+        'avg_ratio': sum(ratio_values) / len(ratio_values) if ratio_values else 0,
     }
     
     return jsonify(chart_data)
@@ -280,9 +274,6 @@ def upload_file():
 init_demo_data()
 
 # 为Vercel Serverless Functions提供入口点
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from urllib.parse import parse_qs, urlparse
-
 def handler(event, context):
     return app(event, context)
 
